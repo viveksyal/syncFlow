@@ -177,11 +177,11 @@ export async function reorderCard({ userId, previousCardId, currentCardId, nextC
     }
 
     if (!nextCard && previousCard !== undefined) {
-        throw appError("Next card found", 404);
+        throw appError("Next card not found", 404);
     }
 
     if ((previousCard && previousCard.listId !== currentCard.listId) || (nextCard && nextCard.listId !== currentCard.listId)) {
-        throw appError("Cards must belong to the same board", 400);
+        throw appError("Cards must belong to the same list", 400);
     }
 
     let newOrder: number;

@@ -9,7 +9,7 @@ export const ListParamsSchema = z.object({
 })
 
 export const ListReorderSchema = z.object({
-        previousListId: z.string().trim(),
-        listId: z.string().trim(),
-        nextListId: z.string().trim()
+        previousListId: z.string().trim().nullable(),
+        currebtListId: z.string().trim(),
+        nextListId: z.string().trim().nullable()
 })

@@ -26,6 +26,14 @@ export async function loginController(req: Request, res: Response){
     })
 }
 
+export async function logoutController(req: Request, res: Response){
+
+    res.clearCookie('token')
+    return res.status(200).json({
+        message: "User logged out successfully",
+    })
+}
+
 export async function meController(req: Request, res: Response){
     const userId = req.user.userId;
     const userData = await getMe(userId);

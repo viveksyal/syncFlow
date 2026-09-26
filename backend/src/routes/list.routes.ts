@@ -10,7 +10,6 @@ router.post("/boards/:boardId/lists", authentication, validate(BoardParamsSchema
 router.get("/boards/:boardId/lists", authentication, validate(BoardParamsSchema, "params"), getListsController);
 router.patch("/lists/:listId", authentication, validate(ListParamsSchema, "params"), validate(ListSchema, "body"), updateListController);
 router.delete("/lists/:listId", authentication, validate(ListParamsSchema, "params"), deleteListController);
-router.delete("/lists/:listId", authentication, validate(ListParamsSchema, "params"), deleteListController);
 
 router.patch("/lists/reorder", authentication, validate(ListReorderSchema, "body"), reorderListController);
 
