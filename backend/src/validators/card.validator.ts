@@ -1,4 +1,4 @@
-import {string, uuid, z} from "zod";
+import {string, z} from "zod";
 
 export const CardSchema = z.object({
         title: z.string().trim().min(1).max(100),

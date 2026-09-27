@@ -219,7 +219,7 @@ export async function moveCard({userId, destinationListId, previousCardId, curre
     );
 
         if(currentCard?.listId === destinationListId){
-            throw appError("Bad Request", 400)
+            throw appError("Card is already in the destination list", 400)
     }
 
     const previousCard = cards.find(
