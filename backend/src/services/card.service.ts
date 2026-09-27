@@ -30,9 +30,11 @@ type ReorderCardType = {
     currentCardId: string,
     previousCardId: string | null,
     nextCardId: string | null
-
 }
 
+type MoveCardType = ReorderCardType & {
+    destinationListId: string
+}
 
 export async function createCard({userId, title, description, listId}: CardType){
     const listData = await prisma.list.findFirst({
@@ -149,7 +151,7 @@ export async function deleteCard({userId, cardId}: DeleteCardType){
 }
 
 export async function reorderCard({ userId, previousCardId, currentCardId, nextCardId }: ReorderCardType) {
-    const cardIds = [previousCardId, currentCardId, nextCardId].filter(id => id != null)
+    const cardIds = [previousCardId, currentCardId, nextCardId].filter(id => id !== null)
     
     const cards = await prisma.card.findMany({
         where: {list: {board: {ownerId: userId} }, id: {in: cardIds}},
@@ -201,4 +203,81 @@ export async function reorderCard({ userId, previousCardId, currentCardId, nextC
         }
     });
     return updatedCardOrder;
+}
+
+export async function moveCard({userId, destinationListId, previousCardId, currentCardId, nextCardId}: MoveCardType){
+    const cardIds = [previousCardId, currentCardId, nextCardId].filter(id => id !== null)
+
+
+    const cards = await prisma.card.findMany({
+        where: {list: {board: {ownerId: userId} }, id: {in: cardIds}},
+        select: {id: true, order: true, listId: true}
+    })
+
+    const currentCard = cards.find(
+        card => card.id === currentCardId
+    );
+
+        if(currentCard?.listId === destinationListId){
+            throw appError("Bad Request", 400)
+    }
+
+    const previousCard = cards.find(
+        card=> card.id === previousCardId
+    );
+    
+    const nextCard = cards.find(
+        card => card.id === nextCardId
+    );
+
+    if (!currentCard) {
+        throw appError("Current card not found", 404);
+    }
+
+    if (!previousCard && nextCardId !== null) {
+        throw appError("Previous card not found", 404);
+    }
+
+    if (!nextCard && previousCardId !== null) {
+        throw appError("Next card not found", 404);
+    }
+
+    const destinationList = await prisma.list.findFirst({
+        where: {board: {ownerId: userId}, id: destinationListId},
+        select: {id: true}
+    })
+
+    if (!destinationList){
+        throw appError("Destination list not found", 404)
+    }
+
+    if (previousCard && previousCard.listId !== destinationListId) {
+        throw appError("Previous card must belong to destination list", 400);
+    }
+
+    if (nextCard && nextCard.listId !== destinationListId) {
+        throw appError("Next card must belong to destination list", 400);
+    }
+
+    let newOrder: number;
+
+    if ((previousCard?.listId === destinationListId) && (nextCard?.listId !== destinationListId)){
+        newOrder = previousCard.order + 1000;
+    } else if ((previousCard?.listId !== destinationListId) && (nextCard?.listId === destinationListId)){
+        newOrder = nextCard.order/2;
+    } else if ((previousCard?.listId === destinationListId) && (nextCard?.listId === destinationListId)){
+        newOrder = (previousCard.order + nextCard.order)/2;
+    } else if(!previousCard && !nextCard){
+        newOrder = 1000
+    } else {
+        throw appError("Invalid card positioning parameters", 400)
+    }
+    const movedCard = await prisma.card.update({
+        where: {id: currentCardId},
+        data: {
+            order: newOrder,
+            listId: destinationListId
+        }
+    })
+    return movedCard;
 }

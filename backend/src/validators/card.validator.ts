@@ -1,4 +1,4 @@
-import {z} from "zod";
+import {string, uuid, z} from "zod";
 
 export const CardSchema = z.object({
         title: z.string().trim().min(1).max(100),
@@ -17,7 +17,14 @@ export const CardParamsSchema = z.object({
 })
 
 export const CardReorderSchema = z.object({
-        previousCardId: z.string().trim(),
-        cardId: z.string().trim(),
-        nextCardId: z.string().trim()
+        previousCardId: z.string().trim().nullable(),
+        currentCardId: z.string().trim(),
+        nextCardId: z.string().trim().nullable()
+})
+
+export const CardMoveSchema = z.object({
+        destinationListId: string().trim(),
+        previousCardId: z.string().trim().nullable(),
+        currentCardId: z.string().trim(),
+        nextCardId: z.string().trim().nullable()
 })
