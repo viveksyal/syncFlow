@@ -69,7 +69,7 @@ PostgreSQL
 ### Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/syncflow.git
+git clone https://github.com/viveksyal/syncflow.git
 cd syncflow/backend
 npm install
 ```
